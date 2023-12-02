@@ -1,0 +1,9 @@
+// enable DSL support in IDEA, see https://confluence.jetbrains.com/display/GRVY/Scripting+IDE+for+DSL+awareness
+// This is not working without job-dsl-core imported in pom.xml
+
+def jobPath = /.*\/*\/.*\.groovy/
+
+def ctx = context(pathRegexp: jobPath)
+contributor(ctx, {
+    delegatesTo(findClass('javaposse.jobdsl.dsl.DslFactory'))
+})
