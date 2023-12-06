@@ -62,6 +62,8 @@ pipeline {
                                 deleteDir()
                                 git url: "${openlTabletsGitIrl}", branch: "${params.APPLICATION_BRANCH}"
                                         //credentialsId: "my-private-key-credential-id"
+                                def localPath = sh "pwd";
+                                sh "echo ${localPath}"
                             }
                         }]
                     }
