@@ -55,6 +55,9 @@ pipeline {
     stages {
         stage('Build Docker Images') {
             steps {
+                checkout([$class           : 'GitSCM',
+                          branches         : [[name: "*/${params.APPLICATION_BRANCH}"]],
+                          userRemoteConfigs: [[url: "${opelTabletsGitIrl}"]]])
                 script {
                     parallel jenkinsLabelList.collectEntries() { nodeLabel ->
                         [(nodeLabel): {
@@ -62,9 +65,7 @@ pipeline {
                                 agent {
                                     label "${nodeLabel}"
                                 }
-                                checkout([$class           : 'GitSCM',
-                                          branches         : [[name: "*/${params.APPLICATION_BRANCH}"]],
-                                          userRemoteConfigs: [[url: "${opelTabletsGitIrl}"]]])
+
                             }
                         }]
                     }
