@@ -55,9 +55,6 @@ pipeline {
     stages {
         stage('Build Docker Images') {
             steps {
-                checkout scmGit(
-                        branches: [[name: "${params.APPLICATION_BRANCH}"]],
-                        userRemoteConfigs: [[ url: "${opelTabletsGitIrl}" ]])
 //                checkout([$class           : 'GitSCM',
 //                          branches         : [[name: "*/${params.APPLICATION_BRANCH}"]],
 //                          userRemoteConfigs: [[url: "${opelTabletsGitIrl}"]]])
@@ -68,7 +65,9 @@ pipeline {
                                 agent {
                                     label "${nodeLabel}"
                                 }
-
+                                checkout scmGit(
+                                        branches: [[name: "${params.APPLICATION_BRANCH}"]],
+                                        userRemoteConfigs: [[ url: "${opelTabletsGitIrl}" ]])
                             }
                         }]
                     }
