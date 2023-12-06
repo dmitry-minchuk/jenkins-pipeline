@@ -63,7 +63,7 @@ pipeline {
                                 git url: "${openlTabletsGitIrl}", branch: "${params.APPLICATION_BRANCH}"
                                         //credentialsId: "my-private-key-credential-id"
                                 def localPath = sh "pwd";
-                                withEnv(['PATH+EXTRA=/usr/sbin:/usr/bin:/sbin:/bin']) {
+                                withEnv(["PATH=${env.M2_HOME}/bin:${env.PATH}"]) {
                                     localPath = sh '//code block'
                                     sh "echo ${localPath}"
                                 }
