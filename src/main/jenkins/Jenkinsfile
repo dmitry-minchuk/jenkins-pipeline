@@ -1,0 +1,83 @@
+package main.jenkins
+
+def opelTabletsGitIrl = "https://github.com/openl-tablets/openl-tablets.git"
+//BUILD_NUMBER="${env.GIT_COMMIT}"
+
+class JenkinsIP {
+    String master = "10.23.172.185"
+    String slave1 = "10.23.172.198"
+    String slave2SAML = "10.23.173.33"
+}
+
+class JenkinsLabel {
+    String master = "Jenkins_Master"
+    String slave1 = "Jenkins_Node_1"
+    String slave2SAML = "Jenkins_Node_2"
+}
+
+class Job {
+    String suiteName
+    Integer appPort
+    String imageName
+    String containerAppPath
+    String nodeToRunOn
+
+    public Job(String suiteName, Integer appPort, String imageName, String containerAppPath, String nodeToRunOn) {
+        this.suiteName = suiteName
+        this.appPort = appPort
+        this.imageName = imageName
+        this.containerAppPath = containerAppPath
+        this.nodeToRunOn = nodeToRunOn
+    }
+}
+
+JenkinsIP jenkinsIP = new JenkinsIP()
+JenkinsLabel jenkinsLabel = new JenkinsLabel()
+def functionalJobList = [
+        new Job("SmokeStudio/smoke_studio_with_pef", 8082, "webstudio:latest", "", null),
+        new Job("StudioIssues/studio_issues_with_pef", 8081, "webstudio:latest", "", null),
+        new Job("RulesEditor/rules_editor_with_pef", 8083, "webstudio:latest", "", null),
+        new Job("Repository/repository_with_pef", 8084, "webstudio:latest", "", null),
+        new Job("Other/custom_config_tests_1", 8085, "webstudio:latest", "", null),
+        new Job("Other/custom_config_tests_2", 8086, "webstudio:latest", "", null),
+        new Job("Other/demo_tests", 8087, "webstudiodemo:latest", "", jenkinsLabel.slave2SAML),
+        new Job("SmokeService/smoke_service", 8088, "webservice:latest", "", jenkinsLabel.slave2SAML),
+        new Job("Other/saml_tests", 808, "webstudio:latest", "", jenkinsLabel.slave2SAML)
+]
+def jenkinsLabelList = [jenkinsLabel.master, jenkinsLabel.slave1, jenkinsLabel.slave2SAML]
+
+pipeline {
+    agent {
+        label "${jenkinsLabel.master}"
+    }
+    parameters {
+        choice(name: 'APPLICATION_BRANCH', choices: ['master', '5.27.x'], description: 'Source application branch (openl-tablets)')
+        choice(name: 'TESTS_BRANCH', choices: ['master', '5.27.x'], description: 'Autotests branch (openl-tests)')
+    }
+    stages {
+        stage('Build Docker Images') {
+            steps {
+                script {
+                    parallel jenkinsLabelList.collectEntries() { nodeLabel ->
+                        [
+                            (nodeLabel): {
+                                stage(nodeLabel) {
+                                    agent {
+                                        label nodeLabel
+                                    }
+                                    steps {
+                                        checkout([$class           : 'GitSCM',
+                                                  branches         : [[name: "*/${params.APPLICATION_BRANCH}"]],
+                                                  extensions       : scm.extensions,
+                                                  userRemoteConfigs: [[url: "${opelTabletsGitIrl}"]]
+                                        ])
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}

@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.example</groupId>
-    <artifactId>jenkins-infra</artifactId>
+    <artifactId>jenkins-pipeline</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -22,7 +22,7 @@
     </repositories>
 
     <dependencies>
-        <dependency> <!--This is needed for Groovy language to work-->
+        <dependency> <!--This is needed for Groovy language to work - also you have to make "src" folder "Sources Root"-->
             <groupId>org.apache.groovy</groupId>
             <artifactId>groovy-all</artifactId>
             <version>4.0.16</version>
