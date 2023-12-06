@@ -33,17 +33,15 @@ class Job {
 
 JenkinsIP jenkinsIP = new JenkinsIP()
 JenkinsLabel jenkinsLabel = new JenkinsLabel()
-def functionalJobList = [
-        new Job("SmokeStudio/smoke_studio_with_pef", 8082, "webstudio:latest", "", null),
-        new Job("StudioIssues/studio_issues_with_pef", 8081, "webstudio:latest", "", null),
-        new Job("RulesEditor/rules_editor_with_pef", 8083, "webstudio:latest", "", null),
-        new Job("Repository/repository_with_pef", 8084, "webstudio:latest", "", null),
-        new Job("Other/custom_config_tests_1", 8085, "webstudio:latest", "", null),
-        new Job("Other/custom_config_tests_2", 8086, "webstudio:latest", "", null),
-        new Job("Other/demo_tests", 8087, "webstudiodemo:latest", "", jenkinsLabel.slave2SAML),
-        new Job("SmokeService/smoke_service", 8088, "webservice:latest", "", jenkinsLabel.slave2SAML),
-        new Job("Other/saml_tests", 808, "webstudio:latest", "", jenkinsLabel.slave2SAML)
-]
+def functionalJobList = [new Job("SmokeStudio/smoke_studio_with_pef", 8082, "webstudio:latest", "", null),
+                         new Job("StudioIssues/studio_issues_with_pef", 8081, "webstudio:latest", "", null),
+                         new Job("RulesEditor/rules_editor_with_pef", 8083, "webstudio:latest", "", null),
+                         new Job("Repository/repository_with_pef", 8084, "webstudio:latest", "", null),
+                         new Job("Other/custom_config_tests_1", 8085, "webstudio:latest", "", null),
+                         new Job("Other/custom_config_tests_2", 8086, "webstudio:latest", "", null),
+                         new Job("Other/demo_tests", 8087, "webstudiodemo:latest", "", jenkinsLabel.slave2SAML),
+                         new Job("SmokeService/smoke_service", 8088, "webservice:latest", "", jenkinsLabel.slave2SAML),
+                         new Job("Other/saml_tests", 808, "webstudio:latest", "", jenkinsLabel.slave2SAML)]
 def jenkinsLabelList = [jenkinsLabel.master, jenkinsLabel.slave1, jenkinsLabel.slave2SAML]
 
 pipeline {
@@ -59,22 +57,17 @@ pipeline {
             steps {
                 script {
                     parallel jenkinsLabelList.collectEntries() { nodeLabel ->
-                        [
-                            (nodeLabel): {
-                                stage(nodeLabel) {
-                                    agent {
-                                        label nodeLabel
-                                    }
-                                    steps {
-                                        checkout([$class           : 'GitSCM',
-                                                  branches         : [[name: "*/${params.APPLICATION_BRANCH}"]],
-                                                  extensions       : scm.extensions,
-                                                  userRemoteConfigs: [[url: "${opelTabletsGitIrl}"]]
-                                        ])
-                                    }
+                        [(nodeLabel): {
+                            stage(nodeLabel) {
+                                agent {
+                                    label nodeLabel
                                 }
+                                checkout([$class           : 'GitSCM',
+                                          branches         : [[name: "*/${params.APPLICATION_BRANCH}"]],
+                                          extensions       : scm.extensions,
+                                          userRemoteConfigs: [[url: "${opelTabletsGitIrl}"]]])
                             }
-                        ]
+                        }]
                     }
                 }
             }
