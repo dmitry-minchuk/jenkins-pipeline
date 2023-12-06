@@ -60,7 +60,7 @@ pipeline {
                         [(nodeLabel): {
                             stage(nodeLabel) {
                                 agent {
-                                    label nodeLabel
+                                    label "${nodeLabel}"
                                 }
                                 checkout([$class           : 'GitSCM',
                                           branches         : [[name: "*/${params.APPLICATION_BRANCH}"]],
