@@ -48,6 +48,9 @@ pipeline {
     agent {
         label "${jenkinsLabel.master}"
     }
+    environment {
+        env.PATH = "PATH=${env.M2_HOME}/bin:${env.PATH}"
+    }
     parameters {
         choice(name: 'APPLICATION_BRANCH', choices: ['master', '5.27.x'], description: 'Source application branch (openl-tablets)')
         choice(name: 'TESTS_BRANCH', choices: ['master', '5.27.x'], description: 'Autotests branch (openl-tests)')
@@ -63,10 +66,11 @@ pipeline {
                                 git url: "${openlTabletsGitIrl}", branch: "${params.APPLICATION_BRANCH}"
                                         //credentialsId: "my-private-key-credential-id"
                                 def localPath = sh "pwd";
-                                withEnv(["PATH=${env.M2_HOME}/bin:${env.PATH}"]) {
-                                    localPath = sh '//code block'
-                                    sh "echo ${localPath}"
-                                }
+                                sh "echo ${localPath}"
+//                                withEnv(["PATH=${env.M2_HOME}/bin:${env.PATH}"]) {
+//                                    localPath = sh "pwd"
+//                                    sh "echo ${localPath}"
+//                                }
                             }
                         }]
                     }
