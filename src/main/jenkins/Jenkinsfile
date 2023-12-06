@@ -49,7 +49,7 @@ pipeline {
         label "${jenkinsLabel.master}"
     }
     environment {
-        env.PATH = "PATH=${env.M2_HOME}/bin:${env.PATH}"
+        PATH = "PATH=${env.M2_HOME}/bin:${env.PATH}"
     }
     parameters {
         choice(name: 'APPLICATION_BRANCH', choices: ['master', '5.27.x'], description: 'Source application branch (openl-tablets)')
