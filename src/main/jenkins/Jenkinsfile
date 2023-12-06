@@ -1,6 +1,6 @@
 package main.jenkins
 
-def opelTabletsGitIrl = "https://github.com/openl-tablets/openl-tablets.git"
+def openlTabletsGitIrl = "https://github.com/openl-tablets/openl-tablets.git"
 //BUILD_NUMBER="${env.GIT_COMMIT}"
 
 class JenkinsIP {
@@ -58,24 +58,16 @@ pipeline {
                 script {
                     parallel jenkinsLabelList.collectEntries() { nodeLabel ->
                         [(nodeLabel): {
-//                            stage(nodeLabel) {
-//                                agent {
-//                                    label "${nodeLabel}"
-//                                }
+                            node(nodeLabel) {
 //                                checkout scmGit(
 //                                        doGenerateSubmoduleConfigurations: false,
 //                                        extensions: [[$class: 'CleanBeforeCheckout'],
 //                                                     [$class: 'CloneOption', depth: 1, noTags: false]],
 //                                        branches: [[name: "${params.APPLICATION_BRANCH}"]],
-//                                        userRemoteConfigs: [[ url: "${opelTabletsGitIrl}" ]])
-//                            }
-                            node(nodeLabel) {
-                                checkout scmGit(
-                                        doGenerateSubmoduleConfigurations: false,
-                                        extensions: [[$class: 'CleanBeforeCheckout'],
-                                                     [$class: 'CloneOption', depth: 1, noTags: false]],
-                                        branches: [[name: "${params.APPLICATION_BRANCH}"]],
-                                        userRemoteConfigs: [[ url: "${opelTabletsGitIrl}" ]])
+//                                        userRemoteConfigs: [[ url: "${openlTabletsGitIrl}" ]])
+                                git url: "${openlTabletsGitIrl}",
+                                        branch: "${params.APPLICATION_BRANCH}"
+                                        //credentialsId: "my-private-key-credential-id"
                             }
                         }]
                     }
