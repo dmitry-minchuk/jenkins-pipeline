@@ -64,7 +64,6 @@ pipeline {
                                 }
                                 checkout([$class           : 'GitSCM',
                                           branches         : [[name: "*/${params.APPLICATION_BRANCH}"]],
-                                          extensions       : scm.extensions,
                                           userRemoteConfigs: [[url: "${opelTabletsGitIrl}"]]])
                             }
                         }]
