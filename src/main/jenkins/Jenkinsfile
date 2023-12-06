@@ -48,6 +48,9 @@ pipeline {
     agent {
         label "${jenkinsLabel.master}"
     }
+    environment {
+        PATH = "PATH=/usr/lib/apache-maven-3.6.3/bin:${env.M2_HOME}/bin:${env.PATH}"
+    }
     parameters {
         choice(name: 'APPLICATION_BRANCH', choices: ['master', '5.27.x'], description: 'Source application branch (openl-tablets)')
         choice(name: 'TESTS_BRANCH', choices: ['master', '5.27.x'], description: 'Autotests branch (openl-tests)')
