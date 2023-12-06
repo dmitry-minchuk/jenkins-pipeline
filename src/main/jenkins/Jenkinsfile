@@ -59,14 +59,8 @@ pipeline {
                     parallel jenkinsLabelList.collectEntries() { nodeLabel ->
                         [(nodeLabel): {
                             node(nodeLabel) {
-//                                checkout scmGit(
-//                                        doGenerateSubmoduleConfigurations: false,
-//                                        extensions: [[$class: 'CleanBeforeCheckout'],
-//                                                     [$class: 'CloneOption', depth: 1, noTags: false]],
-//                                        branches: [[name: "${params.APPLICATION_BRANCH}"]],
-//                                        userRemoteConfigs: [[ url: "${openlTabletsGitIrl}" ]])
-                                git url: "${openlTabletsGitIrl}",
-                                        branch: "${params.APPLICATION_BRANCH}"
+                                deleteDir()
+                                git url: "${openlTabletsGitIrl}", branch: "${params.APPLICATION_BRANCH}"
                                         //credentialsId: "my-private-key-credential-id"
                             }
                         }]
