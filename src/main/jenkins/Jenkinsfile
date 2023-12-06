@@ -58,10 +58,18 @@ pipeline {
                 script {
                     parallel jenkinsLabelList.collectEntries() { nodeLabel ->
                         [(nodeLabel): {
-                            stage(nodeLabel) {
-                                agent {
-                                    label "${nodeLabel}"
-                                }
+//                            stage(nodeLabel) {
+//                                agent {
+//                                    label "${nodeLabel}"
+//                                }
+//                                checkout scmGit(
+//                                        doGenerateSubmoduleConfigurations: false,
+//                                        extensions: [[$class: 'CleanBeforeCheckout'],
+//                                                     [$class: 'CloneOption', depth: 1, noTags: false]],
+//                                        branches: [[name: "${params.APPLICATION_BRANCH}"]],
+//                                        userRemoteConfigs: [[ url: "${opelTabletsGitIrl}" ]])
+//                            }
+                            node(nodeLabel) {
                                 checkout scmGit(
                                         doGenerateSubmoduleConfigurations: false,
                                         extensions: [[$class: 'CleanBeforeCheckout'],
