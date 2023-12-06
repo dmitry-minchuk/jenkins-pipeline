@@ -56,8 +56,8 @@ pipeline {
         stage('Build Docker Images') {
             steps {
                 checkout scmGit(
-                        branches: [[name: 'stable-2.289']],
-                        userRemoteConfigs: [[ url: 'https://github.com/jenkinsci/jenkins.git' ]])
+                        branches: [[name: "${params.APPLICATION_BRANCH}"]],
+                        userRemoteConfigs: [[ url: "${opelTabletsGitIrl}" ]])
 //                checkout([$class           : 'GitSCM',
 //                          branches         : [[name: "*/${params.APPLICATION_BRANCH}"]],
 //                          userRemoteConfigs: [[url: "${opelTabletsGitIrl}"]]])
