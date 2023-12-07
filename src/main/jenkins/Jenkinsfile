@@ -48,6 +48,9 @@ pipeline {
     agent {
         label "${jenkinsLabel.master}"
     }
+    environment {
+        PATH = "/usr/lib/apache-maven-3.6.3/bin:${env.PATH}"
+    }
     parameters {
         choice(name: 'APPLICATION_BRANCH', choices: ['master', '5.27.x'], description: 'Source application branch (openl-tablets)')
         choice(name: 'TESTS_BRANCH', choices: ['master', '5.27.x'], description: 'Autotests branch (openl-tests)')
@@ -61,7 +64,7 @@ pipeline {
                             node(nodeLabel) {
                                 //deleteDir()
                                 git url: "${openlTabletsGitIrl}", branch: "${params.APPLICATION_BRANCH}"
-                                        //credentialsId: "my-private-key-credential-id"
+                                //credentialsId: "my-private-key-credential-id"
                                 def localPath = sh "pwd";
                                 sh "echo ${localPath}"
                             }
