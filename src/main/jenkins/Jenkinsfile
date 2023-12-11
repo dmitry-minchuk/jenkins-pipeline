@@ -65,7 +65,7 @@ pipeline {
                                 //deleteDir()
                                 git url: "${openlTabletsGitIrl}", branch: "${params.APPLICATION_BRANCH}"
                                 //credentialsId: "my-private-key-credential-id"
-                                def localPath = sh "pwd";
+                                def localPath = sh(script: "pwd", returnStdout: true).toString()
                                 sh "echo ${localPath}"
                             }
                         }]
