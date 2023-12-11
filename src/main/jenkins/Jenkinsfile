@@ -66,7 +66,7 @@ pipeline {
                                 git url: "${openlTabletsGitIrl}", branch: "${params.APPLICATION_BRANCH}"
                                 //credentialsId: "my-private-key-credential-id"
                                 def localPath = sh(script: "pwd", returnStdout: true).toString()
-                                sh "echo ${localPath}"
+                                sh("echo ${localPath}")
                             }
                         }]
                     }
