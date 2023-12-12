@@ -15,6 +15,7 @@ contributor(ctx) {
     property(name: 'env', type: 'org.jenkinsci.plugins.workflow.cps.EnvActionImpl.Binder', doc: 'Environment variable')
     property(name: 'currentBuild', type: 'org.jenkinsci.plugins.workflow.cps.RunWrapperBinder')
     property(name: 'scm', type: 'org.jenkinsci.plugins.workflow.multibranch.SCMVar')
+    property(name: 'docker', type: 'org.jenkinsci.plugins.docker.workflow.Docker')
 }
 
 // Define default env vars
@@ -67,6 +68,12 @@ contributor(currentBuild) {
     property(name: 'buildVariables', type: Map, doc: 'for a non-Pipeline downstream build, offers access to a map of defined build variables; for a Pipeline downstream build, any variables set globally on env')
     property(name: 'changeSets', type: String, doc: 'a list of changeSets coming from distinct SCM checkouts; each has a kind and is a list of commits; each commit has a commitId, timestamp, msg, author, and affectedFiles each of which has an editType and path; the value will not generally be Serializable so you may only access it inside a method marked @NonCPS')
     property(name: 'rawBuild', type: String, doc: 'a hudson.model.Run with further APIs, only for trusted libraries or administrator-approved scripts outside the sandbox; the value will not be Serializable so you may only access it inside a method marked @NonCPS')
+}
+
+def docker = context(ctype: 'org.jenkinsci.plugins.docker.workflow.Docker')
+
+contributor(docker) {
+    method('name': 'build', 'type': 'Object', namedParams: [parameter(name: 'imageName', type: String), parameter(name: 'buildParams', type: String)])
 }
 
 def closures = context(scope: closureScope())
@@ -204,14 +211,6 @@ contributor(closures) {
         method(name: 'string', type: Object, namedParams: [parameter(name: 'name', type: String), parameter(name: 'defaultValue', type: String), parameter(name: 'description', type: String)])
         method(name: 'choice', type: Object, namedParams: [parameter(name: 'name', type: String), parameter(name: 'choices', type: List), parameter(name: 'description', type: String)])
         method(name: 'booleanParam', type: Object, namedParams: [parameter(name: 'name', type: String), parameter(name: 'defaultValue', type: Boolean), parameter(name: 'description', type: String)])
-    }
-
-    if (enclosingCall("script")) {
-        property('name': 'docker', 'type': 'Object')
-    }
-
-    if (enclosingCall("docker")) {
-        method('name': 'build', 'type': 'Object', namedParams: [parameter(name: 'imageName', type: String), parameter(name: 'buildParams', type: String)])
     }
 
     // The options section
