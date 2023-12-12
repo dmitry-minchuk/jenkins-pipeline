@@ -49,6 +49,7 @@ pipeline {
         label "${jenkinsLabel.master}"
     }
     environment {
+        // All env vars should be declared here and Jenkins System Env Vars should be disabled
         ENVIRONMENT = "openl_jenkins"
         JAVA_HOME = "/usr/lib/jvm/java-11-openjdk-11.0.20.0.8-1.el7_9.x86_64"
         M2_HOME = "/usr/lib/apache-maven-3.6.3"
@@ -71,6 +72,9 @@ pipeline {
                                 //credentialsId: "my-private-key-credential-id"
                                 def localPath = sh(script: "pwd", returnStdout: true).toString()
                                 sh("echo ${localPath}")
+                                withMaven {
+                                    sh("mvn clean install -DskipTests=true")
+                                }
                             }
                         }]
                     }
