@@ -1,3 +1,5 @@
+// Required plugins:  Pipeline, Pipeline Maven Plugin, Docker Pipeline
+
 package main.jenkins
 
 def openlTabletsGitIrl = "https://github.com/openl-tablets/openl-tablets.git"
@@ -75,6 +77,7 @@ pipeline {
                                 withMaven {
                                     sh("mvn clean install -DskipTests=true")
                                 }
+                                docker.build("webstudio:latest", "--no-cache -f --build-arg APP=STUDIO/org.openl.rules.webstudio/target/webapp .")
                             }
                         }]
                     }
