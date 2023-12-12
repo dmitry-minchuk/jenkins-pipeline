@@ -69,12 +69,11 @@ pipeline {
                     parallel jenkinsLabelList.collectEntries() { nodeLabel ->
                         [(nodeLabel): {
                             node(nodeLabel) {
-                                //deleteDir()
-                                git url: "${openlTabletsGitIrl}", branch: "${params.APPLICATION_BRANCH}"
-                                //credentialsId: "my-private-key-credential-id"
-                                //withMaven {
-                                //    sh("mvn clean install -DskipTests=true")
-                                //}
+                                deleteDir()
+                                git url: "${openlTabletsGitIrl}", branch: "${params.APPLICATION_BRANCH}" //,credentialsId: "my-private-key-credential-id"
+                                withMaven {
+                                    sh("mvn clean install -DskipTests=true")
+                                }
                                 docker.build("webstudio:latest", "--no-cache --build-arg APP=STUDIO/org.openl.rules.webstudio/target/webapp .")
                                 docker.build("webservice:latest", "--no-cache --build-arg APP=WSFrontend/org.openl.rules.ruleservice.ws.all/target/webapp .")
                                 docker.build("webstudiodemo:latest", "--no-cache ./DEMO/")
