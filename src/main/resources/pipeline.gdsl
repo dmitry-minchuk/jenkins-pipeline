@@ -206,6 +206,14 @@ contributor(closures) {
         method(name: 'booleanParam', type: Object, namedParams: [parameter(name: 'name', type: String), parameter(name: 'defaultValue', type: Boolean), parameter(name: 'description', type: String)])
     }
 
+    if (enclosingCall("script")) {
+        property('name': 'docker', 'type': 'Object')
+    }
+
+    if (enclosingCall("docker")) {
+        method('name': 'build', 'type': 'Object', namedParams: [parameter(name: 'imageName', type: String), parameter(name: 'buildParams', type: String)])
+    }
+
     // The options section
     if (enclosingCall("options")) {
         method(name: 'buildDiscarder', type: Object, params: [logRotator: String], doc: 'Persist artifacts and console output for the specific number of recent Pipeline runs')
