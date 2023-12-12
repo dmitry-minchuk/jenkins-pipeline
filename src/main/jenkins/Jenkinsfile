@@ -75,7 +75,7 @@ pipeline {
                                 //withMaven {
                                 //    sh("mvn clean install -DskipTests=true")
                                 //}
-                                docker.build("webstudio:latest", "--no-cache", "--build-arg APP=STUDIO/org.openl.rules.webstudio/target/webapp")
+                                docker.build("webstudio:latest", "--no-cache --build-arg APP=STUDIO/org.openl.rules.webstudio/target/webapp .")
                             }
                         }]
                     }
