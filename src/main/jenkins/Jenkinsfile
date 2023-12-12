@@ -72,12 +72,10 @@ pipeline {
                                 //deleteDir()
                                 git url: "${openlTabletsGitIrl}", branch: "${params.APPLICATION_BRANCH}"
                                 //credentialsId: "my-private-key-credential-id"
-                                def localPath = sh(script: "pwd", returnStdout: true).toString()
-                                sh("echo ${localPath}")
-                                withMaven {
-                                    sh("mvn clean install -DskipTests=true")
-                                }
-                                docker.build("--no-cache -t webstudio:latest --build-arg APP=STUDIO/org.openl.rules.webstudio/target/webapp .")
+                                //withMaven {
+                                //    sh("mvn clean install -DskipTests=true")
+                                //}
+                                docker.build("webstudio:latest", "--no-cache", "--build-arg APP=STUDIO/org.openl.rules.webstudio/target/webapp")
                             }
                         }]
                     }
