@@ -76,6 +76,8 @@ pipeline {
                                 //    sh("mvn clean install -DskipTests=true")
                                 //}
                                 docker.build("webstudio:latest", "--no-cache --build-arg APP=STUDIO/org.openl.rules.webstudio/target/webapp .")
+                                docker.build("webservice:latest", "--no-cache --build-arg APP=WSFrontend/org.openl.rules.ruleservice.ws.all/target/webapp .")
+                                docker.build("webstudiodemo:latest", "--no-cache ./DEMO/")
                             }
                         }]
                     }
