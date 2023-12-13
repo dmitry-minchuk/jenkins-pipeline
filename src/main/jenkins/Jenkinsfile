@@ -3,18 +3,23 @@
 package main.jenkins
 
 def openlTabletsGitIrl = "https://github.com/openl-tablets/openl-tablets.git"
-//BUILD_NUMBER="${env.GIT_COMMIT}"
+def openlTestsGitIrl = "https://dev2eisgengit02.exigengroup.com/gitlab/openl/openl-tests.git"
+def openlTestsGitCredentials = "GitLab Basic Auth"
 
-class JenkinsIP {
-    String master = "10.23.172.185"
-    String slave1 = "10.23.172.198"
-    String slave2SAML = "10.23.173.33"
+class JenkinsNode {
+    String nodeLabel
+    String ip
+
+    public JenkinsNode(String nodeLabel, String ip) {
+        this.nodeLabel = nodeLabel
+        this.ip = ip
+    }
 }
 
 class JenkinsLabel {
-    String master = "Jenkins_Master"
-    String slave1 = "Jenkins_Node_1"
-    String slave2SAML = "Jenkins_Node_2"
+    JenkinsNode master = new JenkinsNode("Jenkins_Master", "10.23.172.185")
+    JenkinsNode slave1 = new JenkinsNode("Jenkins_Node_1", "10.23.172.198")
+    JenkinsNode slave2SAML = new JenkinsNode("Jenkins_Node_2", "10.23.173.33")
 }
 
 class Job {
@@ -33,22 +38,21 @@ class Job {
     }
 }
 
-JenkinsIP jenkinsIP = new JenkinsIP()
-JenkinsLabel jenkinsLabel = new JenkinsLabel()
-def functionalJobList = [new Job("SmokeStudio/smoke_studio_with_pef", 8082, "webstudio:latest", "", null),
-                         new Job("StudioIssues/studio_issues_with_pef", 8081, "webstudio:latest", "", null),
-                         new Job("RulesEditor/rules_editor_with_pef", 8083, "webstudio:latest", "", null),
-                         new Job("Repository/repository_with_pef", 8084, "webstudio:latest", "", null),
-                         new Job("Other/custom_config_tests_1", 8085, "webstudio:latest", "", null),
-                         new Job("Other/custom_config_tests_2", 8086, "webstudio:latest", "", null),
-                         new Job("Other/demo_tests", 8087, "webstudiodemo:latest", "", jenkinsLabel.slave2SAML),
-                         new Job("SmokeService/smoke_service", 8088, "webservice:latest", "", jenkinsLabel.slave2SAML),
-                         new Job("Other/saml_tests", 808, "webstudio:latest", "", jenkinsLabel.slave2SAML)]
-def jenkinsLabelList = [jenkinsLabel.master, jenkinsLabel.slave1, jenkinsLabel.slave2SAML]
+def functionalJobList = [new Job("SmokeStudio/smoke_studio_with_pef", 8082, "webstudio:latest", "", ""),
+                         new Job("StudioIssues/studio_issues_with_pef", 8081, "webstudio:latest", "", ""),
+                         new Job("RulesEditor/rules_editor_with_pef", 8083, "webstudio:latest", "", ""),
+                         new Job("Repository/repository_with_pef", 8084, "webstudio:latest", "", ""),
+                         new Job("Other/custom_config_tests_1", 8085, "webstudio:latest", "", ""),
+                         new Job("Other/custom_config_tests_2", 8086, "webstudio:latest", "", ""),
+                         new Job("Other/demo_tests", 8087, "webstudiodemo:latest", "", JenkinsLabel.slave2SAML.nodeLabel),
+                         new Job("SmokeService/smoke_service", 8088, "webservice:latest", "", JenkinsLabel.slave2SAML.nodeLabel),
+                         new Job("Other/saml_tests", 8089, "webstudio:latest", "", JenkinsLabel.slave2SAML.nodeLabel)]
+
+def jenkinsLabelList = [JenkinsLabel.master.nodeLabel, JenkinsLabel.slave1.nodeLabel, JenkinsLabel.slave2SAML.nodeLabel]
 
 pipeline {
     agent {
-        label "${jenkinsLabel.master}"
+        label JenkinsLabel.master.nodeLabel
     }
     environment {
         // All env vars should be declared here and Jenkins System Env Vars should be disabled
@@ -70,13 +74,41 @@ pipeline {
                         [(nodeLabel): {
                             node(nodeLabel) {
                                 deleteDir()
-                                git url: "${openlTabletsGitIrl}", branch: "${params.APPLICATION_BRANCH}" //,credentialsId: "my-private-key-credential-id"
+                                git url: openlTabletsGitIrl, branch: params.APPLICATION_BRANCH
                                 withMaven {
                                     sh("mvn clean install -DskipTests=true")
                                 }
                                 docker.build("webstudio:latest", "--no-cache --build-arg APP=STUDIO/org.openl.rules.webstudio/target/webapp .")
                                 docker.build("webservice:latest", "--no-cache --build-arg APP=WSFrontend/org.openl.rules.ruleservice.ws.all/target/webapp .")
                                 docker.build("webstudiodemo:latest", "--no-cache ./DEMO/")
+                            }
+                        }]
+                    }
+                }
+            }
+        }
+        stage('Run Test Suites') {
+            steps {
+                script {
+                    parallel functionalJobList.collectEntries() { suite ->
+                        [(suite): {
+                            node(suite.nodeToRunOn) {
+                                environment {
+                                    BUILD_NUMBER=env.GIT_COMMIT
+                                }
+                                deleteDir()
+                                git url: openlTestsGitIrl, branch: params.TESTS_BRANCH, credentialsId: openlTestsGitCredentials
+                                withMaven {
+                                    sh("mvn clean test -Dwebdriver.hub.url=http://${env.HOST_IP}:5555/wd/hub -Dsuite=${suite.suiteName} -Dcontainer.host.ip=${env.HOST_IP} -Dcontainer.port=${suite.appPort} -Dcontainer.app.path=${suite.containerAppPath} -Dimage.name=${suite.imageName} -Dtestng.dtd.http=true")
+                                }
+                                publishHTML([allowMissing: false,
+                                             alwaysLinkToLastBuild: true,
+                                             keepAll: true,
+                                             reportDir: './TESTS/OpenLAutoTests/target/surefire-reports',
+                                             reportFiles: 'index.html',
+                                             reportName: 'HTML Report',
+                                             reportTitles: '',
+                                             useWrapperFileDirectly: true])
                             }
                         }]
                     }
