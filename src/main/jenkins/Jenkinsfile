@@ -98,7 +98,6 @@ pipeline {
                                 deleteDir()
                                 git url: openlTestsGitIrl, branch: params.TESTS_BRANCH, credentialsId: openlTestsGitCredentials
                                 env.BUILD_NUMBER = appBuildNumber
-                                println(appBuildNumber)
                                 withMaven {
                                     sh("mvn -f TESTS/OpenLAutoTests/pom.xml clean test -Dwebdriver.hub.url=http://${env.HOST_IP}:5555/wd/hub -Dsuite=${suite.suiteName} -Dcontainer.host.ip=${env.HOST_IP} -Dcontainer.port=${suite.appPort} -Dcontainer.app.path=${suite.containerAppPath} -Dimage.name=${suite.imageName} -Dtestng.dtd.http=true")
                                 }
