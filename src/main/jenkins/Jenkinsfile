@@ -76,49 +76,45 @@ pipeline {
                             node(nodeLabel) {
                                 deleteDir()
                                 git url: openlTabletsGitIrl, branch: params.APPLICATION_BRANCH
-                                appBuildNumber = GIT_COMMIT
-                                println("+++++++++")
-                                println(GIT_COMMIT)
-                                println(env.GIT_COMMIT)
-//                                withMaven {
-//                                    sh("mvn clean install -DskipTests=true")
-//                                }
-//                                docker.build("webstudio:latest", "--no-cache --build-arg APP=STUDIO/org.openl.rules.webstudio/target/webapp .")
-//                                docker.build("webservice:latest", "--no-cache --build-arg APP=WSFrontend/org.openl.rules.ruleservice.ws.all/target/webapp .")
-//                                docker.build("webstudiodemo:latest", "--no-cache ./DEMO/")
+                                appBuildNumber = env.GIT_COMMIT
+                                withMaven {
+                                    sh("mvn clean install -DskipTests=true")
+                                }
+                                docker.build("webstudio:latest", "--no-cache --build-arg APP=STUDIO/org.openl.rules.webstudio/target/webapp .")
+                                docker.build("webservice:latest", "--no-cache --build-arg APP=WSFrontend/org.openl.rules.ruleservice.ws.all/target/webapp .")
+                                docker.build("webstudiodemo:latest", "--no-cache ./DEMO/")
                             }
                         }]
                     }
                 }
             }
         }
-//        stage('Run Test Suites') {
-//            steps {
-//                script {
-//                    parallel functionalJobList.collectEntries() { suite ->
-//                        [(suite): {
-//                            node(suite.nodeToRunOn) {
-//                                environment {
-//                                    BUILD_NUMBER = appBuildNumber
-//                                }
-//                                deleteDir()
-//                                git url: openlTestsGitIrl, branch: params.TESTS_BRANCH, credentialsId: openlTestsGitCredentials
-//                                withMaven {
-//                                    sh("mvn -f TESTS/OpenLAutoTests/pom.xml clean test -Dwebdriver.hub.url=http://${env.HOST_IP}:5555/wd/hub -Dsuite=${suite.suiteName} -Dcontainer.host.ip=${env.HOST_IP} -Dcontainer.port=${suite.appPort} -Dcontainer.app.path=${suite.containerAppPath} -Dimage.name=${suite.imageName} -Dtestng.dtd.http=true")
-//                                }
-//                                publishHTML([allowMissing: false,
-//                                             alwaysLinkToLastBuild: true,
-//                                             keepAll: true,
-//                                             reportDir: './TESTS/OpenLAutoTests/target/surefire-reports',
-//                                             reportFiles: 'index.html',
-//                                             reportName: 'HTML Report',
-//                                             reportTitles: '',
-//                                             useWrapperFileDirectly: true])
-//                            }
-//                        }]
-//                    }
-//                }
-//            }
-//        }
+        stage('Run Test Suites') {
+            steps {
+                script {
+                    parallel functionalJobList.collectEntries() { suite ->
+                        [(suite): {
+                            node(suite.nodeToRunOn) {
+                                deleteDir()
+                                git url: openlTestsGitIrl, branch: params.TESTS_BRANCH, credentialsId: openlTestsGitCredentials
+                                env.BUILD_NUMBER = appBuildNumber
+                                println(appBuildNumber)
+                                withMaven {
+                                    sh("mvn -f TESTS/OpenLAutoTests/pom.xml clean test -Dwebdriver.hub.url=http://${env.HOST_IP}:5555/wd/hub -Dsuite=${suite.suiteName} -Dcontainer.host.ip=${env.HOST_IP} -Dcontainer.port=${suite.appPort} -Dcontainer.app.path=${suite.containerAppPath} -Dimage.name=${suite.imageName} -Dtestng.dtd.http=true")
+                                }
+                                publishHTML([allowMissing: false,
+                                             alwaysLinkToLastBuild: true,
+                                             keepAll: true,
+                                             reportDir: './TESTS/OpenLAutoTests/target/surefire-reports',
+                                             reportFiles: 'index.html',
+                                             reportName: 'HTML Report',
+                                             reportTitles: '',
+                                             useWrapperFileDirectly: true])
+                            }
+                        }]
+                    }
+                }
+            }
+        }
     }
 }
