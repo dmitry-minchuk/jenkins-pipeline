@@ -49,6 +49,7 @@ def functionalJobList = [new Job("SmokeStudio/smoke_studio_with_pef", 8082, "web
                          new Job("SmokeService/smoke_service", 8088, "webservice:latest", "", jenkinsLabel.slave2SAML.nodeLabel),
                          new Job("Other/saml_tests", 8089, "webstudio:latest", "", jenkinsLabel.slave2SAML.nodeLabel)]
 def jenkinsLabelList = [jenkinsLabel.master.nodeLabel, jenkinsLabel.slave1.nodeLabel, jenkinsLabel.slave2SAML.nodeLabel]
+def appBuildNumber
 
 pipeline {
     agent {
@@ -74,7 +75,8 @@ pipeline {
                         [(nodeLabel): {
                             node(nodeLabel) {
                                 deleteDir()
-                                git url: openlTabletsGitIrl, branch: params.APPLICATION_BRANCH
+                                def scmVars = git url: openlTabletsGitIrl, branch: params.APPLICATION_BRANCH
+                                appBuildNumber = scmVars.GIT_COMMIT
                                 withMaven {
                                     sh("mvn clean install -DskipTests=true")
                                 }
@@ -94,7 +96,7 @@ pipeline {
                         [(suite): {
                             node(suite.nodeToRunOn) {
                                 environment {
-                                    BUILD_NUMBER=env.GIT_COMMIT
+                                    BUILD_NUMBER = appBuildNumber
                                 }
                                 deleteDir()
                                 git url: openlTestsGitIrl, branch: params.TESTS_BRANCH, credentialsId: openlTestsGitCredentials
