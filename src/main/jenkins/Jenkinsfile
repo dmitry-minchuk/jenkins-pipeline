@@ -45,9 +45,9 @@ def functionalJobList = [new Job("SmokeStudio/smoke_studio_with_pef", 8082, "web
                          new Job("Repository/repository_with_pef", 8084, "webstudio:latest", "", ""),
                          new Job("Other/custom_config_tests_1", 8085, "webstudio:latest", "", ""),
                          new Job("Other/custom_config_tests_2", 8086, "webstudio:latest", "", ""),
-                         new Job("Other/demo_tests", 8087, "webstudiodemo:latest", "", JenkinsLabel.slave2SAML.nodeLabel),
-                         new Job("SmokeService/smoke_service", 8088, "webservice:latest", "", JenkinsLabel.slave2SAML.nodeLabel),
-                         new Job("Other/saml_tests", 8089, "webstudio:latest", "", JenkinsLabel.slave2SAML.nodeLabel)]
+                         new Job("Other/demo_tests", 8087, "webstudiodemo:latest", "", jenkinsLabel.slave2SAML.nodeLabel),
+                         new Job("SmokeService/smoke_service", 8088, "webservice:latest", "", jenkinsLabel.slave2SAML.nodeLabel),
+                         new Job("Other/saml_tests", 8089, "webstudio:latest", "", jenkinsLabel.slave2SAML.nodeLabel)]
 def jenkinsLabelList = [jenkinsLabel.master.nodeLabel, jenkinsLabel.slave1.nodeLabel, jenkinsLabel.slave2SAML.nodeLabel]
 
 pipeline {
