@@ -1,4 +1,4 @@
-// Required plugins:  Pipeline, Pipeline Maven Plugin, Docker Pipeline
+// Required plugins:  Pipeline, Pipeline Maven Plugin, Docker Pipeline, Throttle Concurrent Builds
 
 package main.jenkins
 
