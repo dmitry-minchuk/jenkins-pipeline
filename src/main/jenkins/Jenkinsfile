@@ -90,8 +90,8 @@ pipeline {
             }
         }
         stage('Run Test Suites') {
-            throttle {
-                steps {
+            steps {
+                throttle {
                     script {
                         parallel functionalJobList.collectEntries() { suite ->
                             [(suite): {
