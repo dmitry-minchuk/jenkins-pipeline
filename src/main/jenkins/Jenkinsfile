@@ -90,27 +90,29 @@ pipeline {
             }
         }
         stage('Run Test Suites') {
-            steps {
-                script {
-                    parallel functionalJobList.collectEntries() { suite ->
-                        [(suite): {
-                            node(suite.nodeToRunOn) {
-                                deleteDir()
-                                git url: openlTestsGitIrl, branch: params.TESTS_BRANCH, credentialsId: openlTestsGitCredentials
-                                env.BUILD_NUMBER = appBuildNumber
-                                withMaven(mavenSettingsConfig: 'dace3426-e681-4104-b0b0-d0c8cb750226') {
-                                    sh("mvn -f TESTS/OpenLAutoTests/pom.xml clean test -Dwebdriver.hub.url=http://${env.HOST_IP}:5555/wd/hub -Dsuite=${suite.suiteName} -Dcontainer.host.ip=${env.HOST_IP} -Dcontainer.port=${suite.appPort} -Dcontainer.app.path=${suite.containerAppPath} -Dimage.name=${suite.imageName} -Dtestng.dtd.http=true")
+            throttle {
+                steps {
+                    script {
+                        parallel functionalJobList.collectEntries() { suite ->
+                            [(suite): {
+                                node(suite.nodeToRunOn) {
+                                    deleteDir()
+                                    git url: openlTestsGitIrl, branch: params.TESTS_BRANCH, credentialsId: openlTestsGitCredentials
+                                    env.BUILD_NUMBER = appBuildNumber
+                                    withMaven(mavenSettingsConfig: 'dace3426-e681-4104-b0b0-d0c8cb750226') {
+                                        sh("mvn -f TESTS/OpenLAutoTests/pom.xml clean test -Dwebdriver.hub.url=http://${env.HOST_IP}:5555/wd/hub -Dsuite=${suite.suiteName} -Dcontainer.host.ip=${env.HOST_IP} -Dcontainer.port=${suite.appPort} -Dcontainer.app.path=${suite.containerAppPath} -Dimage.name=${suite.imageName} -Dtestng.dtd.http=true")
+                                    }
+                                    publishHTML([allowMissing          : false,
+                                                 alwaysLinkToLastBuild : true,
+                                                 keepAll               : true,
+                                                 reportDir             : './TESTS/OpenLAutoTests/target/surefire-reports',
+                                                 reportFiles           : 'index.html',
+                                                 reportName            : 'HTML Report',
+                                                 reportTitles          : '',
+                                                 useWrapperFileDirectly: true])
                                 }
-                                publishHTML([allowMissing: false,
-                                             alwaysLinkToLastBuild: true,
-                                             keepAll: true,
-                                             reportDir: './TESTS/OpenLAutoTests/target/surefire-reports',
-                                             reportFiles: 'index.html',
-                                             reportName: 'HTML Report',
-                                             reportTitles: '',
-                                             useWrapperFileDirectly: true])
-                            }
-                        }]
+                            }]
+                        }
                     }
                 }
             }
