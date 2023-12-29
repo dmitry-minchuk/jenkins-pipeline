@@ -55,6 +55,9 @@ pipeline {
     agent {
         label jenkinsLabel.master.nodeLabel
     }
+    options {
+        throttleJobProperty(throttleEnabled: true, maxConcurrentPerNode: 3)
+    }
     environment {
         // All env vars should be declared here and Jenkins System Env Vars should be disabled
         ENVIRONMENT = "openl_jenkins"
